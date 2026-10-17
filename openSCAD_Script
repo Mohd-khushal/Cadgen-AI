@@ -1,0 +1,61 @@
+// --- OPENSCAD USAGE GUIDE ---
+// 1. Download and install OpenSCAD from https://openscad.org/
+// 2. Copy this entire text and paste it into the OpenSCAD editor (the left-hand pane).
+// 3. Press the 'F5' key to Preview the 3D model.
+// 4. Press the 'F6' key to Render the final geometry (this is required before exporting).
+// 5. Go to 'File' > 'Export' > 'Export as STL...' to save the file for 3D printing.
+// 6. Use the 'Customizer' panel (Window > Customizer) to adjust variables easily.
+
+/* [Plate Dimensions] */
+// The length of the base plate
+plate_width = 100; 
+// The width of the base plate
+plate_depth = 40;
+// The thickness of the base plate
+plate_thickness = 3;
+
+/* [Text Settings] */
+// The message to display on the object
+display_text = "PASTE IN OPENSCAD";
+// Size of the font
+font_size = 8;
+// How far the text sticks out from the plate
+text_extrusion = 2;
+
+/* [Rendering Detail] */
+// Resolution of circular features
+$fn = 32;
+
+module instruction_plate(w, d, t, msg, f_size, f_height) {
+    union() {
+        // Main base plate with rounded corners
+        hull() {
+            translate([2, 2, 0]) cylinder(r=2, h=t);
+            translate([w-2, 2, 0]) cylinder(r=2, h=t);
+            translate([w-2, d-2, 0]) cylinder(r=2, h=t);
+            translate([2, d-2, 0]) cylinder(r=2, h=t);
+        }
+
+        // Text label centered on the plate
+        translate([w/2, d/2, t])
+        linear_extrude(height = f_height)
+        text(msg, size = f_size, font = "Liberation Sans:style=Bold", halign = "center", valign = "center");
+        
+        // Small hole for a keychain or mounting
+        difference() {
+            // This part is handled by the union, we subtract from the whole in a real 'difference'
+            // But for this simple example, we will just place the plate in a difference block
+        }
+    }
+}
+
+// Final assembly using a difference to add a mounting hole
+difference() {
+    instruction_plate(plate_width, plate_depth, plate_thickness, display_text, font_size, text_extrusion);
+    
+    // Subtract a mounting hole
+    translate([5, plate_depth/2, -1])
+    cylinder(r=2.5, h=plate_thickness + 2);
+}
+
+instruction_plate(plate_width, plate_depth, plate_thickness, display_text, font_size, text_extrusion);
